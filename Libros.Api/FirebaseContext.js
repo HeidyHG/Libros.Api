@@ -6,20 +6,21 @@ import { getFirestore } from 'firebase/firestore';
 import { getAnalytics } from 'firebase/analytics';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC_uc5FGVZbtf3DPm4TaVK7pQXTEkgE-Jw",
-  authDomain: "librosapi2.firebaseapp.com",
-  projectId: "librosapi2",
-  storageBucket: "librosapi2.firebasestorage.app",
-  messagingSenderId: "260996730970",
-  appId: "1:260996730970:web:74fe93e72061f2fed1c863",
-  measurementId: "G-5M0X76QQXR"
+  apiKey: "AIzaSyCjUhH9WiMfGmvYe9EmVQOjYTTxRRWG2v8",
+  authDomain: "librosapi-245bf.firebaseapp.com",
+  projectId: "librosapi-245bf",
+  storageBucket: "librosapi-245bf.appspot.com", // Corregido
+  messagingSenderId: "357180022116",
+  appId: "1:357180022116:web:bc6f95af2c0d8343a22e71",
+  measurementId: "G-11BVGF8V53"
 };
 
-// Initialize Firebase
+// Inicializa Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app); // Ensure auth is initialized here
+const auth = getAuth(app);
 const db = getFirestore(app);
 let analytics;
+
 try {
   analytics = getAnalytics(app);
 } catch (error) {
@@ -36,8 +37,7 @@ export const FirebaseProvider = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // Delay to ensure native module is ready
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         await new Promise((resolve, reject) => {
           const unsubscribe = onAuthStateChanged(auth, (user) => {
             setUsuario(user);

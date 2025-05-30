@@ -15,17 +15,21 @@ export default function Perfil() {
   useEffect(() => {
     if (cargando || !uid) return;
     const traerDatos = async () => {
-      const docRef = doc(db, 'usuarios', uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        setNombre(data.nombre || '');
-        setFecha(data.fecha || '');
-        setTelefono(data.telefono || '');
-        setLibrosLeidos(data.librosLeidos || 0);
-        setLibrosPorLeer(data.librosPorLeer || 0);
-      } else {
-        Alert.alert('Usuario no encontrado');
+      try {
+        const docRef = doc(db, 'usuarios', uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setNombre(data.nombre || '');
+          setFecha(data.fecha || '');
+          setTelefono(data.telefono || '');
+          setLibrosLeidos(data.librosLeidos || 0);
+          setLibrosPorLeer(data.librosPorLeer || 0);
+        } else {
+          Alert.alert('Usuario no encontrado');
+        }
+      } catch (error) {
+        Alert.alert('Error al obtener datos');
       }
     };
     traerDatos();
@@ -47,6 +51,7 @@ export default function Perfil() {
   };
 
   if (cargando) return <Text style={styles.cargando}>Cargando...</Text>;
+  if (!uid) return <Text style={styles.cargando}>Debes iniciar sesión para ver tu perfil.</Text>;
 
   return (
     <View style={styles.contenedor}>
@@ -64,7 +69,7 @@ export default function Perfil() {
 const styles = StyleSheet.create({
   contenedor: { padding: 20, flex: 1, backgroundColor: '#fff' },
   titulo: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
-  input: { borderWidth: 1, margin: 10, marginBottom: 15, borderRadius: 10 },
+  input: { borderWidth: 1, margin: 10, marginBottom: 15, borderRadius: 10, padding: 8 },
   stats: { fontSize: 16, marginVertical: 10 },
   cargando: { marginTop: 50, textAlign: 'center' },
 });

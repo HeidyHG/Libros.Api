@@ -11,7 +11,11 @@ export default function Leidos() {
   useEffect(() => {
     if (cargando || !uid) return;
     const fetchLibros = async () => {
-      const q = query(collection(db, 'libros'), where('uid', '==', uid), where('leido', '==', true));
+      const q = query(
+        collection(db, 'libros'),
+        where('uid', '==', uid),
+        where('leido', '==', true)
+      );
       const querySnapshot = await getDocs(q);
       const librosList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setLibros(librosList);
@@ -23,6 +27,14 @@ export default function Leidos() {
     return (
       <View style={styles.container}>
         <Text>Cargando...</Text>
+      </View>
+    );
+  }
+
+  if (!uid) {
+    return (
+      <View style={styles.container}>
+        <Text>Debes iniciar sesión para ver tus libros leídos.</Text>
       </View>
     );
   }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
-import { signInWithEmailAndPassword, logEvent } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { logEvent } from 'firebase/analytics';
 import { useNavigation } from '@react-navigation/native';
 import { useFirebase } from '../../FirebaseContext';
 

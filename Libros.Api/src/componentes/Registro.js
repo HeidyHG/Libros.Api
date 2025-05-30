@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
-import { createUserWithEmailAndPassword, doc, setDoc } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore'; // <-- Corrección aquí
 import { useNavigation } from '@react-navigation/native';
 import { useFirebase } from '../../FirebaseContext';
 

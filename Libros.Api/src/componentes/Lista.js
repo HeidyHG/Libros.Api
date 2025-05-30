@@ -1,23 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { useFirebase } from '../../FirebaseContext';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 
 export default function Lista() {
-  const { db, usuario, cargando } = useFirebase();
+  const { db, cargando } = useFirebase();
   const [libros, setLibros] = useState([]);
-  const uid = usuario?.uid;
 
   useEffect(() => {
-    if (cargando || !uid) return;
+    if (cargando) return;
     const fetchLibros = async () => {
-      const q = query(collection(db, 'libros'), where('uid', '==', uid));
-      const querySnapshot = await getDocs(q);
-      const librosList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setLibros(librosList);
+      try {
+        const querySnapshot = await getDocs(collection(db, 'libros'));
+        const librosList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setLibros(librosList);
+      } catch (error) {
+        console.error('Error al obtener libros:', error);
+      }
     };
     fetchLibros();
-  }, [db, uid, cargando]);
+  }, [db, cargando]);
 
   if (cargando) {
     return (
@@ -38,7 +40,7 @@ export default function Lista() {
             <Text>{item.titulo} - {item.leido ? 'Leído' : 'Por Leer'}</Text>
           </View>
         )}
-        ListEmptyComponent={<Text>No tienes libros en tu lista.</Text>}
+        ListEmptyComponent={<Text>No hay libros en la base de datos.</Text>}
       />
     </View>
   );

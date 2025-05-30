@@ -27,6 +27,14 @@ export default function PorLeer() {
     );
   }
 
+  if (!uid) {
+    return (
+      <View style={styles.container}>
+        <Text>Debes iniciar sesión para ver tus libros por leer.</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.titulo}>Libros por Leer</Text>

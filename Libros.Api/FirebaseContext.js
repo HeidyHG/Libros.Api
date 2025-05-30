@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Text } from 'react-native';
 import { initializeApp } from 'firebase/app';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
@@ -17,7 +17,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const auth = getAuth(app); // Ensure auth is initialized here
 const db = getFirestore(app);
 let analytics;
 try {
@@ -34,32 +34,36 @@ export const FirebaseProvider = ({ children }) => {
   const [authInitialized, setAuthInitialized] = useState(false);
 
   useEffect(() => {
-    const initializeFirebase = async () => {
+    const initializeAuth = async () => {
       try {
-        // Ensure auth is fully initialized
+        // Delay to ensure native module is ready
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
         await new Promise((resolve, reject) => {
           const unsubscribe = onAuthStateChanged(auth, (user) => {
             setUsuario(user);
             setAuthInitialized(true);
             setCargando(false);
             resolve();
-          }, reject);
+          }, (error) => {
+            console.error("Auth state change error:", error);
+            reject(error);
+          });
           return () => unsubscribe();
         });
       } catch (error) {
-        console.error("Error initializing auth:", error);
+        console.error("Firebase initialization error:", error);
         setCargando(false);
       }
     };
 
-    initializeFirebase();
+    initializeAuth();
   }, []);
 
   if (cargando || !authInitialized) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Inicializando...</Text>
+        <Text>Inicializando Firebase...</Text>
       </View>
     );
   }

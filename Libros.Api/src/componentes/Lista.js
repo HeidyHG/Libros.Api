@@ -1,57 +1,51 @@
-import React, { useState, useEffect } from 'react';
-  import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-  import { useNavigation } from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { useFirebase } from '../../FirebaseContext';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
-  export default function Lista() {
-    const [books, setBooks] = useState([]);
-    const navigation = useNavigation();
+export default function Lista() {
+  const { db, usuario, cargando } = useFirebase();
+  const [libros, setLibros] = useState([]);
+  const uid = usuario?.uid;
 
-    useEffect(() => {
-      const fetchBooks = async () => {
-        try {
-          const response = await fetch('http://gutendex.com/books');
-          const data = await response.json();
-          setBooks(data.results);
-        } catch (error) {
-          console.error('Error fetching books:', error);
-        }
-      };
-      fetchBooks();
-    }, []);
+  useEffect(() => {
+    if (cargando || !uid) return;
+    const fetchLibros = async () => {
+      const q = query(collection(db, 'libros'), where('uid', '==', uid));
+      const querySnapshot = await getDocs(q);
+      const librosList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setLibros(librosList);
+    };
+    fetchLibros();
+  }, [db, uid, cargando]);
 
-    const renderBook = ({ item }) => (
-      <TouchableOpacity
-        style={styles.bookItem}
-        onPress={() => navigation.navigate('Libro', { book: item })}
-      >
-        <Text style={styles.bookTitle}>{item.title}</Text>
-        <Text>{item.authors[0]?.name || 'Unknown Author'}</Text>
-      </TouchableOpacity>
-    );
-
+  if (cargando) {
     return (
       <View style={styles.container}>
-        <FlatList
-          data={books}
-          renderItem={renderBook}
-          keyExtractor={(item) => item.id.toString()}
-        />
+        <Text>Cargando...</Text>
       </View>
     );
   }
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 10,
-    },
-    bookItem: {
-      padding: 15,
-      borderBottomWidth: 1,
-      borderBottomColor: '#ccc',
-    },
-    bookTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-    },
-  });
+  return (
+    <View style={styles.container}>
+      <Text style={styles.titulo}>Lista de Libros</Text>
+      <FlatList
+        data={libros}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <Text>{item.titulo} - {item.leido ? 'Leído' : 'Por Leer'}</Text>
+          </View>
+        )}
+        ListEmptyComponent={<Text>No tienes libros en tu lista.</Text>}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 20 },
+  titulo: { fontSize: 24, marginBottom: 20, textAlign: 'center' },
+  item: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#ccc' },
+});
